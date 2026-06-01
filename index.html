@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carina</title>
+<meta name="theme-color" content="#6E2434">
+<meta name="color-scheme" content="light only">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Carina">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Hanken+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F4ECDF; --cream2:#EFE5D5; --wine:#6E2434; --wine-d:#491825;
+  --ochre:#B07B43; --grey-blue:#90A4A6; --green:#6F8348; --ink:#3A2C29; --muted:#8C7A70;
+  color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background:var(--cream); color:var(--ink);
+  font-family:'Hanken Grotesk',system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.5;
+  overscroll-behavior:none;
+}
+.serif{font-family:'Fraunces',Georgia,serif}
+.hidden{display:none !important}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+
+/* full-screen layers */
+.layer{position:fixed;inset:0;display:flex;flex-direction:column;
+  padding:max(22px,env(safe-area-inset-top)) 22px max(22px,env(safe-area-inset-bottom));
+  background:var(--cream);overflow-y:auto}
+
+/* welcome / nudge */
+.center{justify-content:center;gap:20px;max-width:460px;margin:0 auto}
+.note{font-family:'Fraunces',serif;font-size:20px;line-height:1.5;color:var(--wine);white-space:pre-line}
+.welcomephoto{width:100%;max-width:300px;aspect-ratio:1/1;object-fit:cover;border-radius:20px;align-self:center}
+.from{color:var(--muted);font-size:15px}
+.cta{align-self:flex-start;background:var(--green);color:#fff;border-radius:999px;
+  padding:13px 26px;font-size:16px;font-weight:500}
+.cta.block{align-self:stretch;text-align:center}
+.ghost{background:transparent;color:var(--muted);border:1px solid #d8cab5;border-radius:999px;padding:13px 22px;font-size:15px}
+.fineprint{color:var(--muted);font-size:13.5px;line-height:1.45}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+
+/* app shell */
+#app{display:flex;flex-direction:column;height:100%}
+.topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:max(18px,env(safe-area-inset-top)) 22px 8px}
+.wm{font-family:'Fraunces',serif;font-weight:500;color:var(--wine);font-size:21px;letter-spacing:.2px}
+.iconbtn{width:38px;height:38px;border-radius:50%;background:var(--cream2);color:var(--muted);
+  font-size:18px;display:flex;align-items:center;justify-content:center}
+.body{flex:1;overflow-y:auto;padding:0 22px}
+.screen{display:none}
+.screen.active{display:block}
+
+/* today */
+.hello{color:var(--muted);font-size:15px;margin:6px 0 12px}
+.card{background:var(--cream);border-radius:20px}
+.photo{border-radius:20px;overflow:hidden;background:#d8cbb6;aspect-ratio:1/1;position:relative}
+.photo.wide{aspect-ratio:4/3}
+.photo img{width:100%;height:100%;object-fit:cover}
+.spinner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+.line{font-family:'Fraunces',serif;font-size:20px;line-height:1.34;color:var(--wine);padding:16px 4px 2px;min-height:1.3em}
+.acts{display:flex;gap:10px;align-items:center;padding:6px 0 2px}
+.pill{border-radius:999px;font-size:14.5px;padding:10px 16px}
+.pill.solid{background:var(--green);color:#fff;font-weight:500}
+.pill.out{background:transparent;color:var(--wine);border:1px solid #ddccb6}
+.heart{margin-left:auto;font-size:22px;color:var(--ochre);background:none;padding:6px}
+.heart.on{color:#C0532E}
+.moods{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 6px}
+.mood{font-size:13px;color:var(--wine);background:var(--cream2);border:1px solid #e0d3bf;border-radius:999px;padding:8px 13px}
+.mood.sel{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* open when */
+.h{font-family:'Fraunces',serif;font-size:23px;color:var(--wine);margin:12px 0 14px}
+.env{width:100%;text-align:left;background:var(--cream2);border:1px solid #e3d6c2;border-radius:15px;
+  padding:17px 18px;margin-bottom:11px;display:flex;justify-content:space-between;align-items:center;
+  font-size:16px;color:var(--ink)}
+.env .chev{color:var(--grey-blue);font-size:20px}
+
+/* kept */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:10px}
+.grid .photo{aspect-ratio:1/1;border-radius:14px}
+.empty{color:var(--muted);font-size:15px;line-height:1.5;padding:18px 2px}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:22px;padding:12px 22px max(14px,env(safe-area-inset-bottom));
+  border-top:1px solid #e4d8c5}
+.nav button{font-size:15px;color:var(--muted);padding:4px 0}
+.nav button.on{color:var(--wine);font-weight:500;border-bottom:2px solid var(--green);padding-bottom:3px}
+.nav .rough{margin-left:auto;color:var(--ochre);font-size:14px}
+
+/* rough overlay */
+#rough{background:var(--wine-d);color:#F4ECDF;justify-content:center;gap:0}
+#rough .rline{font-family:'Fraunces',serif;font-size:22px;line-height:1.5;color:#F4ECDF;
+  opacity:0;transition:opacity .9s ease;margin:0}
+#rough .rline.show{opacity:1}
+#roughbeats{display:flex;flex-direction:column;gap:26px;flex:1;justify-content:center;max-width:440px;margin:0 auto;width:100%}
+#rough .rbtns{display:flex;flex-direction:column;gap:12px;max-width:440px;margin:0 auto;width:100%;padding-bottom:10px}
+#rough .rb{border-radius:999px;padding:15px;text-align:center;font-size:16px}
+#rough .rb.solid{background:var(--green);color:#fff;font-weight:500}
+#rough .rb.ghost{background:transparent;color:#e9d9c8;border:1px solid #7a4a55}
+.tap-hint{color:#b78c95;font-size:13px;text-align:center}
+
+/* viewer overlay */
+#viewer{background:var(--wine-d);justify-content:center;align-items:center;gap:18px}
+#viewer .vlabel{color:#e9d9c8;font-size:15px}
+#viewer .photo{width:100%;max-width:460px;aspect-ratio:1/1;border-radius:20px}
+#viewer .vbtns{display:flex;gap:12px}
+#closeViewer{color:#e9d9c8;border:1px solid #7a4a55;border-radius:999px;padding:12px 22px;font-size:15px;background:transparent}
+#viewerAnother{background:var(--green);color:#fff;border-radius:999px;padding:12px 22px;font-size:15px;font-weight:500}
+
+/* settings sheet */
+#sheet{background:rgba(40,18,26,.5);justify-content:flex-end;padding:0}
+.sheetcard{background:var(--cream);border-radius:22px 22px 0 0;padding:24px 24px max(28px,env(safe-area-inset-bottom));max-width:560px;margin:0 auto;width:100%}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0}
+.srow .lbl{font-size:16px}
+.srow .sub{font-size:13.5px;color:var(--muted)}
+.toggle{width:52px;height:30px;border-radius:999px;background:#d8cab5;position:relative;transition:background .2s}
+.toggle.on{background:var(--green)}
+.toggle .knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle.on .knob{left:25px}
+.about{color:var(--muted);font-size:14px;line-height:1.55;padding-top:8px;border-top:1px solid #e4d8c5;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="welcome" class="layer center">
+  <img class="welcomephoto" src="carina.jpg" alt="Carina">
+  <p class="note" id="welcomeNote"></p>
+  <button class="cta" id="welcomeGo">let's go</button>
+</div>
+
+<div id="nudge" class="layer center hidden">
+  <p class="note">want a little knock each day when something new lands? warm, never naggy. off whenever you like.</p>
+  <div class="btnrow">
+    <button class="cta" id="nudgeYes">yes, nudge me</button>
+    <button class="ghost" id="nudgeNo">not now</button>
+  </div>
+  <p class="fineprint">you can change this any time from the menu.</p>
+</div>
+
+<div id="app" class="hidden">
+  <div class="topbar">
+    <span class="wm">Carina</span>
+    <button class="iconbtn" id="openSheet" aria-label="menu">···</button>
+  </div>
+
+  <div class="body">
+    <section class="screen active" id="today">
+      <p class="hello" id="hello">there you are.</p>
+      <div class="card">
+        <div class="photo" id="todayPhoto"><div class="spinner">…</div></div>
+        <p class="line serif" id="todayLine"></p>
+        <div class="acts">
+          <button class="pill solid" id="another">another?</button>
+          <button class="heart" id="keepBtn" aria-label="keep this one">&#9825;</button>
+        </div>
+      </div>
+      <div class="moods" id="moods"></div>
+    </section>
+
+    <section class="screen" id="openwhen">
+      <h2 class="h">open when…</h2>
+      <div id="envs"></div>
+    </section>
+
+    <section class="screen" id="kept">
+      <h2 class="h">kept</h2>
+      <div class="grid" id="keptGrid"></div>
+      <p class="empty hidden" id="keptEmpty">nothing kept yet. tap the heart on one you want to hold onto.</p>
+    </section>
+  </div>
+
+  <nav class="nav">
+    <button data-screen="today" class="on">today</button>
+    <button data-screen="openwhen">open when</button>
+    <button data-screen="kept">kept</button>
+    <button class="rough" id="roughEntry">it's a rough one</button>
+  </nav>
+</div>
+
+<div id="rough" class="layer hidden">
+  <div id="roughbeats"></div>
+  <div class="rbtns">
+    <button class="rb solid" id="roughCat">show me a cat</button>
+    <button class="rb ghost" id="roughClose">i'm okay for now</button>
+  </div>
+</div>
+
+<div id="viewer" class="layer hidden">
+  <p class="vlabel" id="viewerLabel"></p>
+  <div class="photo" id="viewerPhoto"></div>
+  <div class="vbtns">
+    <button id="viewerAnother">another</button>
+    <button id="closeViewer">close</button>
+  </div>
+</div>
+
+<div id="sheet" class="layer hidden">
+  <div class="sheetcard">
+    <div class="srow">
+      <div><div class="lbl">daily nudge</div><div class="sub">a soft knock when something new lands</div></div>
+      <button class="toggle" id="nudgeToggle"><span class="knob"></span></button>
+    </div>
+    <button class="ghost block" id="closeSheet" style="width:100%;margin-top:10px">close</button>
+    <p class="about">carina is a small thing made for you by béa. cats from around the world, with a few warm places in between. it keeps nothing, counts nothing, asks nothing.</p>
+  </div>
+</div>
+
+<script src="assets.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
