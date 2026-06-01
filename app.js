@@ -5,14 +5,10 @@
   var rand = function(a){return a[Math.floor(Math.random()*a.length)];};
   var CAT_API = "https://api.thecatapi.com/v1/images/search";
   var VAPID_PUBLIC = "BNWmyFrBKRnbkEdHAjSBdwCwWOLvhQZTHb2xNgygvaxvz1IZiUG2vkiC9ABi79HiUYDug8C52-YiooGewrtSVPg";
-  var FB_PROJECT = "carina-5af00";
-  var FB_KEY = "AIzaSyBXT8-FEQgJC82BYq2U7VmesJhz1Wb5jzk";
-  var PUSH_DOC_ID = "a7d347efba6b2d5e85f790c378e4f7d1";
+  // subscription is written server-side (api/subscribe) so no Google key lives in the client
   window.CARINA_SAVE_SUB = function(sub){
-    if(!FB_PROJECT || !FB_KEY) return;
     try{
-      var url = "https://firestore.googleapis.com/v1/projects/"+FB_PROJECT+"/databases/(default)/documents/pushsubs/"+PUSH_DOC_ID+"?key="+FB_KEY;
-      fetch(url, {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({fields:{sub:{stringValue:JSON.stringify(sub)}}})}).catch(function(){});
+      fetch("/api/subscribe", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({sub:sub})}).catch(function(){});
     }catch(_){}
   };
 
